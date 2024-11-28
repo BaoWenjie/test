@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<h1>11.28.14.37</h1>
+<h1>11.28.15.10</h1>
 <div id="paypal-button-container"></div>
 <script src="https://www.paypal.com/sdk/js?client-id=AZofHmeTRxP_ig8krgBTZk2AA8-DRTdjO9ymeWFNh1w-_pPIGq4QizpfhwLEKmO8JqIyh1gzB51KLBMR&locale=en_US"></script>
 <script>
@@ -27,6 +27,7 @@
 
                 // 如果 PayPal 应用没有打开，设置超时跳转到网页版
                 setTimeout(() => {
+                    alert("111")
                     window.location.href = `https://www.paypal.com/checkoutnow?token=${orderID}`;
                 }, 1500); // 设置1.5秒超时
                 return orderID;
