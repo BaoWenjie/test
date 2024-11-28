@@ -5,46 +5,65 @@
     <title>Title</title>
 </head>
 <body>
+<h1>11.28.14.37</h1>
 <div id="paypal-button-container"></div>
 <script src="https://www.paypal.com/sdk/js?client-id=AZofHmeTRxP_ig8krgBTZk2AA8-DRTdjO9ymeWFNh1w-_pPIGq4QizpfhwLEKmO8JqIyh1gzB51KLBMR&locale=en_US"></script>
 <script>
     // 初始化 PayPal 按钮
     paypal.Buttons({
         createOrder: function (data, actions) {
-            // 创建支付订单
+            // 创建订单逻辑：通过 PayPal SDK 动态创建订单
             return actions.order.create({
                 purchase_units: [{
                     amount: {
-                        value: '0.01' // 替换为你的商品价格
+                        value: '10.00' // 商品价格
                     }
                 }]
             });
         },
+        onClick: function () {
+            // 在按钮点击时检测设备环境
+            checkPayPalApp().then(appInstalled => {
+                if (appInstalled) {
+                    console.log('PayPal app is installed.');
+                } else {
+                    console.log('PayPal app is not installed. Falling back to web payment.');
+                }
+            });
+        },
         onApprove: function (data, actions) {
-            // 处理支付成功的回调
+            // 支付成功后的处理
             return actions.order.capture().then(function (details) {
                 alert('Payment successful! Transaction ID: ' + details.id);
-                // 处理成功后的逻辑
             });
         },
         onError: function (err) {
             console.error('Payment failed:', err);
-            alert('Payment failed, please try again.');
-        },
-    }).render('#paypal-button-container'); // 渲染 PayPal 按钮
-
-    // 检测是否安装 PayPal 应用 (仅在支持 navigator 协议的设备中可行)
-    const checkPayPalApp = async () => {
-        try {
-            await navigator.canShare({ url: 'paypal://open' });
-            alert('PayPal app is installed.');
-        } catch (err) {
-            alert('PayPal app is not installed. Falling back to web payment.');
         }
-    };
+    }).render('#paypal-button-container');
 
-    // 自动检测并执行逻辑
-    checkPayPalApp();
+    // 检测 PayPal 应用是否安装
+    function checkPayPalApp() {
+        return new Promise((resolve) => {
+            const paypalAppUrl = 'paypal://open';
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = paypalAppUrl;
+            document.body.appendChild(iframe);
+
+            const timeout = setTimeout(() => {
+                resolve(false); // 未检测到应用
+                document.body.removeChild(iframe);
+            }, 1500); // 1.5 秒超时
+
+            window.addEventListener('blur', () => {
+                clearTimeout(timeout);
+                resolve(true); // 检测到应用
+                document.body.removeChild(iframe);
+            });
+        });
+    }
+
 </script>
 
 </body>
