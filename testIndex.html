@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="paypal-button-container"></div>
+<script src="https://www.paypal.com/sdk/js?client-id=AZofHmeTRxP_ig8krgBTZk2AA8-DRTdjO9ymeWFNh1w-_pPIGq4QizpfhwLEKmO8JqIyh1gzB51KLBMR&locale=en_US"></script>
+<script>
+    // 初始化 PayPal 按钮
+    paypal.Buttons({
+        createOrder: function (data, actions) {
+            // 创建支付订单
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '0.01' // 替换为你的商品价格
+                    }
+                }]
+            });
+        },
+        onApprove: function (data, actions) {
+            // 处理支付成功的回调
+            return actions.order.capture().then(function (details) {
+                alert('Payment successful! Transaction ID: ' + details.id);
+                // 处理成功后的逻辑
+            });
+        },
+        onError: function (err) {
+            console.error('Payment failed:', err);
+            alert('Payment failed, please try again.');
+        },
+    }).render('#paypal-button-container'); // 渲染 PayPal 按钮
+
+    // 检测是否安装 PayPal 应用 (仅在支持 navigator 协议的设备中可行)
+    const checkPayPalApp = async () => {
+        try {
+            await navigator.canShare({ url: 'paypal://open' });
+            alert('PayPal app is installed.');
+        } catch (err) {
+            alert('PayPal app is not installed. Falling back to web payment.');
+        }
+    };
+
+    // 自动检测并执行逻辑
+    checkPayPalApp();
+</script>
+
+</body>
+</html>
