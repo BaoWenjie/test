@@ -9,61 +9,35 @@
 <div id="paypal-button-container"></div>
 <script src="https://www.paypal.com/sdk/js?client-id=AZofHmeTRxP_ig8krgBTZk2AA8-DRTdjO9ymeWFNh1w-_pPIGq4QizpfhwLEKmO8JqIyh1gzB51KLBMR&locale=en_US"></script>
 <script>
-    // 初始化 PayPal 按钮
     paypal.Buttons({
-        createOrder: function (data, actions) {
-            // 创建订单逻辑：通过 PayPal SDK 动态创建订单
+        createOrder: function(data, actions) {
             return actions.order.create({
                 purchase_units: [{
                     amount: {
-                        value: '10.00' // 商品价格
+                        value: '0.01'
                     }
                 }]
+            }).then(function(orderID) {
+                // 深度链接支付
+                const paypalAppUrl = `paypal://open?token=${orderID}`;
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = paypalAppUrl;
+                document.body.appendChild(iframe);
+
+                // 如果 PayPal 应用没有打开，设置超时跳转到网页版
+                setTimeout(() => {
+                    window.location.href = `https://www.paypal.com/checkoutnow?token=${orderID}`;
+                }, 1500); // 设置1.5秒超时
+                return orderID;
             });
         },
-        onClick: function () {
-            // 在按钮点击时检测设备环境
-            checkPayPalApp().then(appInstalled => {
-                if (appInstalled) {
-                    console.log('PayPal app is installed.');
-                } else {
-                    console.log('PayPal app is not installed. Falling back to web payment.');
-                }
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                alert('支付成功，感谢您的购买！');
             });
-        },
-        onApprove: function (data, actions) {
-            // 支付成功后的处理
-            return actions.order.capture().then(function (details) {
-                alert('Payment successful! Transaction ID: ' + details.id);
-            });
-        },
-        onError: function (err) {
-            console.error('Payment failed:', err);
         }
     }).render('#paypal-button-container');
-
-    // 检测 PayPal 应用是否安装
-    function checkPayPalApp() {
-        return new Promise((resolve) => {
-            const paypalAppUrl = 'paypal://open';
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = paypalAppUrl;
-            document.body.appendChild(iframe);
-
-            const timeout = setTimeout(() => {
-                resolve(false); // 未检测到应用
-                document.body.removeChild(iframe);
-            }, 1500); // 1.5 秒超时
-
-            window.addEventListener('blur', () => {
-                clearTimeout(timeout);
-                resolve(true); // 检测到应用
-                document.body.removeChild(iframe);
-            });
-        });
-    }
-
 </script>
 
 </body>
