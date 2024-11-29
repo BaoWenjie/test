@@ -6,39 +6,32 @@
 </head>
 <body>
 <h1>11.28.15.10</h1>
-<div id="paypal-button-container"></div>
+<button onclick="checkPayPalApp()">检测 PayPal 应用</button>
 <script src="https://www.paypal.com/sdk/js?client-id=AZofHmeTRxP_ig8krgBTZk2AA8-DRTdjO9ymeWFNh1w-_pPIGq4QizpfhwLEKmO8JqIyh1gzB51KLBMR&locale=en_US"></script>
 <script>
-    paypal.Buttons({
-        createOrder: function(data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: '0.01'
-                    }
-                }]
-            }).then(function(orderID) {
-                // 深度链接支付
-                const paypalAppUrl = `paypal://open?token=${orderID}`;
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = paypalAppUrl;
-                document.body.appendChild(iframe);
+    function checkPayPalApp() {
+        const paypalAppUrl = 'paypal://open'; // PayPal 应用的深度链接
+        const timeout = 1500; // 设置超时检测时间
 
-                // 如果 PayPal 应用没有打开，设置超时跳转到网页版
-                setTimeout(() => {
-                    alert("111")
-                    window.location.href = `https://www.paypal.com/checkoutnow?token=${orderID}`;
-                }, 1500); // 设置1.5秒超时
-                return orderID;
-            });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
-                alert('支付成功，感谢您的购买！');
-            });
-        }
-    }).render('#paypal-button-container');
+        // 创建一个隐藏的 iframe，用于检测是否能够打开 PayPal 应用
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = paypalAppUrl;
+        document.body.appendChild(iframe);
+
+        // 设置超时机制，如果 1.5 秒内未跳转到 PayPal 应用，则认为没有安装应用
+        const timer = setTimeout(() => {
+            alert('no');  // 如果 PayPal 应用没有安装，显示 "no"
+            document.body.removeChild(iframe); // 清除 iframe
+        }, timeout);
+
+        // 监听浏览器是否切换焦点，如果打开了 PayPal 应用则取消超时
+        window.addEventListener('blur', () => {
+            clearTimeout(timer);
+            alert('yes');  // 如果 PayPal 应用已打开，显示 "yes"
+            document.body.removeChild(iframe); // 清除 iframe
+        });
+    }
 </script>
 
 </body>
