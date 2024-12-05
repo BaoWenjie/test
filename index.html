@@ -19,36 +19,42 @@
     </style>
 </head>
 <body>
-    <h1>PayPal Payment</h1>
+    <h1>11111111</h1>
     <div id="paypal-button-container"></div>
 
     <script>
-        // PayPal Smart Payment Buttons
         paypal.Buttons({
-            createOrder: function (data, actions) {
-                // 创建订单
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: '10.00' // 价格
-                        }
-                    }]
-                });
-            },
-            onApprove: function (data, actions) {
-                // 支付完成
-                return actions.order.capture().then(function (details) {
-                    alert('Transaction completed by ' + details.payer.name.given_name);
-                });
-            },
-            onClick: function () {
-                // 检测是否安装了 PayPal 应用
-                const hasPayPalApp = /paypal/i.test(navigator.userAgent);
-                if (!hasPayPalApp) {
-                    alert('111'); // 提示用户没有安装 PayPal 应用
+          // 配置订单
+          createOrder: function (data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: {
+                  value: '1.00' // 设置支付金额
                 }
-            }
-        }).render('#paypal-button-container'); // 渲染 PayPal 按钮
-    </script>
+              }]
+            });
+          },
+      
+          // 执行订单
+          onApprove: function (data, actions) {
+            // 捕获支付结果
+            return actions.order.capture().then(function (details) {
+              alert('支付成功，感谢 ' + details.payer.name.given_name + '!');
+              // 可在这里处理成功后的业务逻辑
+            });
+          },
+      
+          // 支付取消或失败时的处理
+          onCancel: function (data) {
+            alert('支付已取消');
+          },
+      
+          onError: function (err) {
+            console.error('支付失败:', err);
+            alert('支付出现问题，请稍后重试');
+          }
+        }).render('#paypal-button-container'); // 渲染按钮到指定容器
+      </script>
+      
 </body>
 </html>
