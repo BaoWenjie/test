@@ -2,58 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PayPal Button Test</title>
-    <script src="https://www.paypal.com/sdk/js?client-id=AZofHmeTRxP_ig8krgBTZk2AA8-DRTdjO9ymeWFNh1w-_pPIGq4QizpfhwLEKmO8JqIyh1gzB51KLBMR&locale=en_US"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        #paypal-button-container {
-            margin-top: 20px;
-        }
-    </style>
+    <title>Title</title>
 </head>
 <body>
-    <h1>11111111</h1>
-    <div id="paypal-button-container"></div>
-<!-- 这是一次测试 -->
-<!-- 这是第二次测试 -->
-    <script>
-        paypal.Buttons({
-          // 配置订单
-          createOrder: function (data, actions) {
-            return actions.order.create({
-              purchase_units: [{
-                amount: {
-                  value: '1.00' // 设置支付金额
-                }
-              }]
-            });
-          },
-      
-          // 执行订单
-          onApprove: function (data, actions) {
-            // 捕获支付结果
-            return actions.order.capture().then(function (details) {
-              alert('支付成功，感谢 ' + details.payer.name.given_name + '!');
-              // 可在这里处理成功后的业务逻辑
-            });
-          },
-      
-          // 支付取消或失败时的处理
-          onCancel: function (data) {
-            alert('支付已取消');
-          },
-      
-          onError: function (err) {
-            console.error('支付失败:', err);
-            alert('支付出现问题，请稍后重试');
-          }
-        }).render('#paypal-button-container'); // 渲染按钮到指定容器
-      </script>
-      
+<h1>11.28.15.10</h1>
+<button onclick="checkPayPalApp()">检测 PayPal 应用</button>
+<script src="https://www.paypal.com/sdk/js?client-id=AZofHmeTRxP_ig8krgBTZk2AA8-DRTdjO9ymeWFNh1w-_pPIGq4QizpfhwLEKmO8JqIyh1gzB51KLBMR&locale=en_US"></script>
+<script>
+    function checkPayPalApp() {
+        const paypalAppUrl = 'paypal://open'; // PayPal 应用的深度链接
+        const timeout = 1500; // 设置超时检测时间
+
+        // 创建一个隐藏的 iframe，用于检测是否能够打开 PayPal 应用
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = paypalAppUrl;
+        document.body.appendChild(iframe);
+
+        // 设置超时机制，如果 1.5 秒内未跳转到 PayPal 应用，则认为没有安装应用
+        const timer = setTimeout(() => {
+            alert('no');  // 如果 PayPal 应用没有安装，显示 "no"
+            document.body.removeChild(iframe); // 清除 iframe
+        }, timeout);
+
+        // 监听浏览器是否切换焦点，如果打开了 PayPal 应用则取消超时
+        window.addEventListener('blur', () => {
+            clearTimeout(timer);
+            alert('yes');  // 如果 PayPal 应用已打开，显示 "yes"
+            document.body.removeChild(iframe); // 清除 iframe
+        });
+    }
+</script>
+
 </body>
 </html>
